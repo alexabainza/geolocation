@@ -3,9 +3,6 @@ import { errorHandler } from "../utils/error.js";
 import { checkIpExistsForUser } from "../utils/ipExists.js";
 
 export const createSearch = async (req, res, next) => {
-  console.log("req.body", req.body);
-  console.log("req.user", req.user);
-
   try {
     const userId = req.user.id;
     const searchData = {
@@ -18,10 +15,8 @@ export const createSearch = async (req, res, next) => {
       req.body.ip_searched
     );
     if (searchResult) {
-      console.log("ip already exist!");
       searchResult.updatedAt = new Date();
       await searchResult.save();
-      console.log("successffuly updated search item");
       return res.status(200).json({
         success: true,
         message: "Successfully updated record!",
@@ -35,7 +30,6 @@ export const createSearch = async (req, res, next) => {
       message: "Successfully created record!",
       searchItem: searchItem,
     });
-    // return res.status(201).json(searchItem);
   } catch (error) {
     next(error);
   }

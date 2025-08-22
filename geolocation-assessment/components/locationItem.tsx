@@ -77,7 +77,7 @@ const LocationItem: React.FC<LocationItemProps> = ({
         <Text style={{}}>{locationData.ip_searched}</Text>
         {!isEditMode && (
           <TouchableOpacity onPress={handleDelete}>
-            <Text style={{ color: "gray" }}>✖</Text>
+            <Text style={{ color: "gray", fontSize: 20 }}>✖</Text>
           </TouchableOpacity>
         )}
       </View>

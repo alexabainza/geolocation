@@ -1,9 +1,5 @@
-import { Platform } from 'react-native';
-
-const DEV_HOST =
-  Platform.OS === 'android'
-    ? '192.168.254.105'
-    : '192.168.254.105';
+//REPLACE WITH YOUR OWN IP ADDRESS
+const DEV_HOST ='192.168.1.61'
 
 export const API_BASE_URL =
   __DEV__

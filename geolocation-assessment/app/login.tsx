@@ -6,7 +6,6 @@ import { loginSchema } from "@/assets/types/schema";
 import { API_CONFIG, getApiUrl } from "@/config/api";
 import { useNotification } from "@/hooks/useNotification";
 import { setToken } from "@/store/store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 
@@ -92,9 +91,7 @@ export default function HomeScreen() {
     }
 
     if (data.token) {
-      await AsyncStorage.setItem("token", data.token);
       setToken(data.token);
-      console.log("Token stored successfully");
     }
     router.replace("/(main)");
   };

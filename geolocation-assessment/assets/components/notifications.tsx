@@ -110,7 +110,6 @@ const Notification: React.FC<NotificationProps> = ({
       style={[
         styles.container,
         {
-          top: insets.top,
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
         },

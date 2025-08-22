@@ -26,38 +26,47 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function Home() {
+export default function HomeScreen() {
   const [ipAddress, setIpAddress] = useState("");
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [items, setItems] = useState<SearchItem[]>([]);
   const [isEditClicked, setIsEditClicked] = useState<boolean>(false);
   const [myLocation, setMyLocation] = useState<SearchResult | null>(null);
-  const token = getToken();
+  const [token, setToken] = useState<string>();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState<boolean>(false);
+  const [selectAll, setSelectAll] = useState<boolean>(false);
   const insets = useSafeAreaInsets();
-  const {
-    notification,
-    showError,
-    showSuccess,
-    showWarning,
-    hideNotification,
-  } = useNotification();
+  const { notification, showError, hideNotification } = useNotification();
   const handleItemClicked = (itemId: string) => {
     setSelectedItems((prev) => {
+      let newSelection;
       if (prev.includes(itemId)) {
-        return prev.filter((id) => id !== itemId);
+        newSelection = prev.filter((id) => id !== itemId);
       } else {
-        return [...prev, itemId];
+        newSelection = [...prev, itemId];
       }
+      setSelectAll(newSelection.length === items.length);
+
+      return newSelection;
     });
   };
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedItems([]);
+      setSelectAll(false);
+    } else {
+      setSelectAll(true);
 
+      const allItemIds = items
+        .map((item) => item._id)
+        .filter((id) => id !== undefined) as string[];
+      setSelectedItems(allItemIds);
+    }
+  };
   const handleDeleteItem = async (itemId: string) => {
     const deletedItem = items.find((item) => item._id === itemId);
-    console.log("deleted ite", deletedItem);
     if (
       deletedItem &&
       searchResult &&
@@ -66,13 +75,11 @@ export default function Home() {
       setSearchResult(null);
       setIpAddress("");
     }
-    // setSelectedItems([itemId]);
     await deleteItems([itemId]);
   };
   const deleteItems = async (itemsToDelete?: string[]) => {
     try {
       const idsToDelete = itemsToDelete || selectedItems;
-
       const url = getApiUrl(API_CONFIG.ENDPOINTS.SEARCH);
       const res = await fetch(url, {
         method: "DELETE",
@@ -83,17 +90,19 @@ export default function Home() {
         body: JSON.stringify({ search_item_ids: idsToDelete }),
       });
       const data = await res.json();
+
       if (!res.ok) {
-        console.log("error", res.json);
+        showError("Error deleting items");
       } else {
-        console.log("deleted succssfully");
+        showError("Deleted successfully!");
 
         const searchItems = await getSearchItems();
         setItems(searchItems.searches);
         setSelectedItems([]);
+        setSelectAll(false);
       }
     } catch (error) {
-      console.log("error catch", error);
+      showError("Error deleting items. Please  try again later.");
     }
   };
   const handleHistoryItemPress = (item: SearchItem) => {
@@ -124,11 +133,19 @@ export default function Home() {
   const toggleEdit = () => {
     setIsEditClicked(!isEditClicked);
     setSelectedItems([]);
+    setSelectAll(false);
   };
 
   useEffect(() => {
     const initializeData = async () => {
       try {
+        const tokenRetrieved = await getToken();
+        if (tokenRetrieved) {
+          setToken(tokenRetrieved);
+        } else {
+          showError("No token found");
+        }
+
         setLoading(true);
         await getMyIP();
         const userLocationInfo = getUserIP();
@@ -158,7 +175,6 @@ export default function Home() {
       // THIS IS FOR WHEN I PUT NA IN THE DB
       if (data) {
         const coordinates = formatCoordinates(data.loc || "");
-        // of type SearchItem which will be sent to the db
         const formattedResult = {
           ip_searched: ip,
           locationData: {
@@ -342,7 +358,7 @@ export default function Home() {
         }}
       >
         <Text style={{ fontWeight: 500, fontSize: 16 }}>History</Text>
-        <View style={{ display: "flex", flexDirection: "row", gap: 20 }}>
+        <View style={{ display: "flex", flexDirection: "row", gap: 12 }}>
           {isEditClicked && selectedItems.length > 0 && (
             <TouchableOpacity
               style={{
@@ -360,7 +376,21 @@ export default function Home() {
               </Text>
             </TouchableOpacity>
           )}
+          {isEditClicked && items.length > 0 && (
+            <TouchableOpacity
+              style={{
+                borderRadius: 5,
+                height: "100%",
 
+                paddingHorizontal: 10,
+              }}
+              onPress={handleSelectAll}
+            >
+              <Text style={{ color: "#5998D7" }}>
+                {selectAll ? "Unselect all" : "Select all"}
+              </Text>
+            </TouchableOpacity>
+          )}
           {!isEditClicked && (
             <TouchableOpacity
               onPress={() => {

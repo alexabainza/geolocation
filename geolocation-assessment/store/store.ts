@@ -16,14 +16,32 @@ export const clearCurrentSearchItem = () => {
   currentSearchItem = null;
 };
 
-export const setToken = (item:any)=>{
-  currentToken = item;
-}
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const getToken = () => {
-  return currentToken;
+export const setToken = async (token: string) => {
+  try {
+    currentToken = token;
+    await AsyncStorage.setItem('token', token);
+  } catch (error) {
+    console.error('Error saving token to AsyncStorage:', error);
+  }
 };
 
+export const getToken = async (): Promise<string | null> => {
+  try {
+    if (currentToken) {
+      return currentToken;
+    }
+    
+    const token = await AsyncStorage.getItem('token');
+    if (token) {
+      currentToken = token;
+    }
+    return token;
+  } catch (error) {
+    return null;
+  }
+};
 export const clearToken = () =>{
   currentToken = null;
 }

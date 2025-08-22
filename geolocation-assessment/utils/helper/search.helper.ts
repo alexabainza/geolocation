@@ -41,12 +41,9 @@ export const getMyIP = async ()=>{
       };
 
     setUserIP(formattedData);
-
-        // return data;
     }
     catch(error){
         console.log("error", error);
-
     }
 }
 export const fetchUserSearches = async () => {
@@ -60,7 +57,6 @@ export const fetchUserSearches = async () => {
 
 export const saveToDatabase = async(dataToSave: SearchItem) => {
     const token = await AsyncStorage.getItem("token")
-    console.log("get token", token)
     try {
       const url = getApiUrl(API_CONFIG.ENDPOINTS.SEARCH);
       const res = await fetch(url, {
@@ -71,9 +67,7 @@ export const saveToDatabase = async(dataToSave: SearchItem) => {
         },
         body: JSON.stringify(dataToSave),
       });
-      const data = await res.json();
-      console.log("added data to database", data);
-   
+      const data = await res.json();   
     } catch (error) {
       console.log("error saving search item to db", error);
     }

@@ -1,6 +1,6 @@
 import { styles } from "@/assets/styles/auth.styles";
 import { useNotification } from "@/hooks/useNotification";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getToken } from "@/store/store";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import React, { useEffect } from "react";
@@ -14,21 +14,16 @@ interface DecodedToken {
 
 export default function Landing() {
   const router = useRouter();
-  const {
-    notification,
-    showError,
-    showSuccess,
-    showWarning,
-    hideNotification,
-  } = useNotification();
+  const { notification, showError } = useNotification();
   useEffect(() => {
     const checkToken = async () => {
-      const token = await AsyncStorage.getItem("token");
+      const token = await getToken();
       if (!token) {
         showError("No token found. Please login");
         router.replace("/login");
         return;
       }
+
       const isExpired = isTokenExpired(token);
 
       if (isExpired) {
