@@ -1,6 +1,6 @@
 # Geolocation Technical Assessment
 ## Installation
-```https://github.com/alexabainza/geolocation.git```
+```git clone https://github.com/alexabainza/geolocation.git```
 
 ## To set up frontend:
 1. Navigate to front end folder:
